@@ -1,12 +1,16 @@
 import os
+import cv2
 
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
+
 from django.shortcuts import render
 from PIL import Image
 import argparse
 import io
 import torch
 from maskapp.yolo_model import YoloModel
+from maskapp.camera import gen
+
 # Create your views here.
 
 
@@ -26,7 +30,7 @@ def mask_img(request):
 
         img_bytes = file.read()
         img = Image.open(io.BytesIO(img_bytes))
-        results = model(img, size=640)
+        results = model(img, size=320)
         results.render()
 
         pics = [os.path.join('./maskapp/static/maskapp/uploadpic/', x) for x in os.listdir('./maskapp/static/maskapp/uploadpic/') if x[-3:] == "jpg"]
@@ -46,3 +50,10 @@ def mask_img(request):
 
 def mask_vid(request):
     return render(request, 'maskapp/video.html', {'name': 2})
+
+
+def video_feed(request):
+    cam = cv2.VideoCapture(0)
+    
+    return StreamingHttpResponse(gen(cam), content_type='multipart/x-mixed-replace; boundary=frame')
+ 

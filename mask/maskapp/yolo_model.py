@@ -11,7 +11,8 @@ class Singleton(type):
 
 class YoloModel(metaclass=Singleton):
     def __init__(self):
-        self.__model = torch.hub.load('ultralytics/yolov5', 'custom', path='./maskapp/weights/best.pt').autoshape()
+        self.__model = torch.hub.load(repo_or_dir='./yolov5',source='local' , model='custom', path='./maskapp/weights/best.pt')
+        #self.__model.conf = 0.4
 
     @property
     def model(self):
